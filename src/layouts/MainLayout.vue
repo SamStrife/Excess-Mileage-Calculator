@@ -35,7 +35,7 @@
             ]"
           />
 
-          <q-toggle label="I accept the license and terms" />
+          <q-toggle label="Miles/KMs" />
 
           <div>
             <q-btn label="Submit" type="submit" color="green-10" />
@@ -82,3 +82,26 @@
     </q-page-container>
   </q-layout>
 </template>
+
+<script>
+import {ref, computed} from vue;
+export default{
+
+setup() {
+  const registration = ref('');
+  const vehicleType = ref('');
+  const hireStart = ref('');
+  const hireEnd = ref('');
+  const startMileage = ref('');
+  const endMileage = ref('');
+  const yearlyAllowance = ref('');
+  const excessMileage = ref('');
+  const pricePerExcess = ref('');
+  const excessCharge = ref('');
+  const vehicleArray = ref([])
+
+  return{};
+  }
+
+}
+</script>
