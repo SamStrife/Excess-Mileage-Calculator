@@ -35,7 +35,7 @@
             ]"
           />
 
-          <q-toggle label="Miles/KMs" />
+          <!-- <q-toggle label="Miles/KMs" /> -->
 
           <div>
             <q-btn label="Submit" type="submit" color="green-10" />
@@ -54,28 +54,51 @@
           <thead>
             <tr>
               <th class="text-left">Vehicle Registration</th>
-              <th class="text-right">Vehicle Type</th>
-              <th class="text-right">Hire Start Date</th>
-              <th class="text-right">Hire End Date</th>
-              <th class="text-right">Start Mileage</th>
-              <th class="text-right">End Mileage</th>
-              <th class="text-right">Yearly Allowance</th>
-              <th class="text-right">Over</th>
-              <th class="text-right">Pence per Mile Over</th>
-              <th class="text-right">Excess Mielage Charge</th>
+              <th class="text-left">Vehicle Type</th>
+              <th class="text-left">Hire Start Date</th>
+              <th class="text-left">Hire End Date</th>
+              <th class="text-left">Start Mileage</th>
+              <th class="text-left">End Mileage</th>
+              <th class="text-left">Yearly Allowance</th>
+              <th class="text-left">Over</th>
+              <th class="text-left">Pence per Mile Over</th>
+              <th class="text-left">Excess Mielage Charge</th>
             </tr>
           </thead>
-          <tbody>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
+          <tbody v-for="vehicle in vehicleArray" :key="vehicle.reg">
+            <tr>
+              <td>
+                {{ vehicle.reg }}
+              </td>
+              <td>
+                {{ vehicle.type }}
+              </td>
+              <td>
+                {{ vehicle.startDate }}
+              </td>
+              <td>
+                {{ vehicle.endDate }}
+              </td>
+              <td>
+                {{ vehicle.startMileage }}
+              </td>
+              <td>
+                {{ vehicle.endMileage }}
+              </td>
+              <td>
+                {{ vehicle.allowance }}
+              </td>
+              <td>
+                {{ vehicle.over }}
+              </td>
+              <td>
+                {{ vehicle.ppm }}
+              </td>
+              <td>
+                {{ vehicle.excessCharge }}
+              </td>
+              <td @click="remove(vehicle.reg)">Remove</td>
+            </tr>
           </tbody>
         </q-markup-table>
       </div>
@@ -84,24 +107,51 @@
 </template>
 
 <script>
-import {ref, computed} from vue;
-export default{
+import { ref } from "vue";
+export default {
+  setup() {
+    const registration = ref("");
+    const vehicleType = ref("");
+    const hireStart = ref("");
+    const hireEnd = ref("");
+    const startMileage = ref("");
+    const endMileage = ref("");
+    const yearlyAllowance = ref("");
+    const excessMileage = ref("");
+    const pricePerExcess = ref("");
+    const excessCharge = ref("");
+    const vehicleArray = [
+      {
+        reg: "DX12AEA",
+        type: "Tractor Unit",
+        startDate: "01/01/2022",
+        endDate: "02/01/2022",
+        startMileage: "123456",
+        endMileage: "7891011",
+        allowance: "150000",
+        over: "10",
+        ppm: "0.7",
+        excessCharge: "70",
+      },
+      {
+        reg: "DX12AEB",
+        type: "Tractor Unit 6x2",
+        startDate: "03/01/2022",
+        endDate: "04/01/2022",
+        startMileage: "7891011",
+        endMileage: "1234567",
+        allowance: "1140000",
+        over: "11",
+        ppm: "0.08",
+        excessCharge: "88",
+      },
+    ];
 
-setup() {
-  const registration = ref('');
-  const vehicleType = ref('');
-  const hireStart = ref('');
-  const hireEnd = ref('');
-  const startMileage = ref('');
-  const endMileage = ref('');
-  const yearlyAllowance = ref('');
-  const excessMileage = ref('');
-  const pricePerExcess = ref('');
-  const excessCharge = ref('');
-  const vehicleArray = ref([])
+    function remove(reg) {
+      console.log(`Clicked: ${reg}`);
+    }
 
-  return{};
-  }
-
-}
+    return { vehicleArray, remove };
+  },
+};
 </script>
