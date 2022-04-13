@@ -13,9 +13,10 @@
 
     <q-page-container>
       <div class="q-pa-md">
-        <q-form class="q-gutter-md">
+        <q-form class="q-gutter-md row items-start">
           <q-input
             v-model="customer"
+            dense
             filled
             label="Customer"
             hint="Customer Name"
@@ -27,6 +28,7 @@
           <q-input
             v-model="registration"
             filled
+            dense
             label="Registration"
             hint="Vehicle Registration"
             lazy-rules
@@ -37,6 +39,7 @@
           <q-input
             v-model="vehicleType"
             filled
+            dense
             label="Vehicle Type"
             hint="Vehicle Type"
             lazy-rules
@@ -49,6 +52,7 @@
             label="Hire Start Date"
             hint="Hire Start Date"
             filled
+            dense
             mask="date"
             :rules="['date']"
           >
@@ -84,6 +88,7 @@
             label="Hire End Date"
             hint="Hire End Date"
             filled
+            dense
             mask="date"
             :rules="[
               'date',
@@ -121,6 +126,7 @@
             v-model="startMileage"
             type="number"
             filled
+            dense
             label="Start Mileage"
             hint="Start Mileage"
             lazy-rules
@@ -132,6 +138,7 @@
             v-model="endMileage"
             type="number"
             filled
+            dense
             label="End Mileage"
             hint="End Mileage"
             lazy-rules
@@ -144,6 +151,7 @@
             v-model="yearlyAllowance"
             type="number"
             filled
+            dense
             label="Yearly Allowance"
             hint="Yearly Allowance"
             lazy-rules
@@ -155,6 +163,7 @@
             v-model="pricePerExcess"
             type="number"
             filled
+            dense
             label="Pence Per Excess Mile/KM"
             hint="Pence Per Excess Mile/KM"
             lazy-rules
@@ -166,17 +175,18 @@
           <div>
             <q-btn
               prevent
-              label="Submit"
+              label="Add"
               type="submit"
               color="green-10"
               @click="addVehicleToArray"
             />
             <q-btn
-              label="Reset"
+              label="Clear"
               type="reset"
               color="green-10"
               flat
               class="q-ml-sm"
+              @click="clearInput"
             />
           </div>
         </q-form>
@@ -234,7 +244,7 @@
                 {{ vehicle.excessCharge }}
               </td>
               <td
-                @click="removeVehicleFromArray(vehicle.id)"
+                @click="removeVehicleFromArray(vehicle)"
                 class="cursor-pointer"
               >
                 Remove
@@ -264,38 +274,9 @@ export default {
     const excessMileage = ref("");
     const pricePerExcess = ref("7");
     const excessCharge = ref("");
-    const vehicleArray = ref([
-      {
-        id: 1,
-        customer: "DFDS",
-        reg: "DX12AEA",
-        type: "Tractor Unit",
-        startDate: "01/01/2022",
-        endDate: "02/01/2022",
-        startMileage: "123456",
-        endMileage: "7891011",
-        allowance: "150000",
-        over: "10",
-        ppm: "0.7",
-        excessCharge: "70",
-      },
-      {
-        id: 2,
-        customer: "Yusen",
-        reg: "DX12AEB",
-        type: "Tractor Unit 6x2",
-        startDate: "03/01/2022",
-        endDate: "04/01/2022",
-        startMileage: "7891011",
-        endMileage: "1234567",
-        allowance: "1140000",
-        over: "11",
-        ppm: "0.08",
-        excessCharge: "88",
-      },
-    ]);
+    const vehicleArray = ref([]);
 
-    const vehicleArrayID = vehicleArray.value.length + 1;
+    let vehicleArrayID = vehicleArray.value.length + 1;
 
     function addVehicleToArray() {
       vehicleArray.value.push({
@@ -315,14 +296,31 @@ export default {
       vehicleArrayID++;
     }
 
-    function removeVehicleFromArray(id) {
-      vehicleArray.value.splice(id, 1);
+    function removeVehicleFromArray(arrayVehicle) {
+      vehicleArray.value = vehicleArray.value.filter(
+        (vehicle) => vehicle.id != arrayVehicle.id
+      );
+    }
+
+    function clearInput() {
+      customer.value = "";
+      registration.value = "";
+      vehicleType.value = "";
+      hireStart.value = "";
+      hireEnd.value = "";
+      startMileage.value = "";
+      endMileage.value = "";
+      yearlyAllowance.value = "";
+      excessMileage.value = "";
+      pricePerExcess.value = "7";
+      excessCharge.value = "";
     }
 
     return {
       vehicleArray,
       addVehicleToArray,
       removeVehicleFromArray,
+      clearInput,
       customer,
       registration,
       vehicleType,
