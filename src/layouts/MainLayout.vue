@@ -15,30 +15,162 @@
       <div class="q-pa-md">
         <q-form class="q-gutter-md">
           <q-input
+            v-model="customer"
             filled
-            label="Your name *"
-            hint="Name and surname"
+            label="Customer"
+            hint="Customer Name"
+            lazy-rules
+            :rules="[
+              (val) => (val && val.length > 0) || 'Please type something',
+            ]"
+          />
+          <q-input
+            v-model="registration"
+            filled
+            label="Registration"
+            hint="Vehicle Registration"
+            lazy-rules
+            :rules="[
+              (val) => (val && val.length > 0) || 'Please type something',
+            ]"
+          />
+          <q-input
+            v-model="vehicleType"
+            filled
+            label="Vehicle Type"
+            hint="Vehicle Type"
+            lazy-rules
+            :rules="[
+              (val) => (val && val.length > 0) || 'Please type something',
+            ]"
+          />
+          <q-input
+            v-model="hireStart"
+            label="Hire Start Date"
+            hint="Hire Start Date"
+            filled
+            mask="date"
+            :rules="['date']"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  ref="qDateProxy"
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date
+                    v-model="hireStart"
+                    title="Hire Start Date"
+                    today-btn
+                    color="green-10"
+                  >
+                    <div class="row items-center justify-end">
+                      <q-btn
+                        v-close-popup
+                        label="Close"
+                        color="green-10"
+                        flat
+                      />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-input
+            v-model="hireEnd"
+            label="Hire End Date"
+            hint="Hire End Date"
+            filled
+            mask="date"
+            :rules="[
+              'date',
+              //TODO: Ensure end cannot be earlier that start
+            ]"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  ref="qDateProxy"
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date
+                    v-model="hireEnd"
+                    title="Hire End Date"
+                    today-btn
+                    color="green-10"
+                  >
+                    <div class="row items-center justify-end">
+                      <q-btn
+                        v-close-popup
+                        label="Close"
+                        color="green-10"
+                        flat
+                      />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-input
+            v-model="startMileage"
+            type="number"
+            filled
+            label="Start Mileage"
+            hint="Start Mileage"
+            lazy-rules
+            :rules="[
+              (val) => (val && val.length > 0) || 'Please type something',
+            ]"
+          />
+          <q-input
+            v-model="endMileage"
+            type="number"
+            filled
+            label="End Mileage"
+            hint="End Mileage"
+            lazy-rules
+            :rules="[
+              (val) => (val && val.length > 0) || 'Please type something',
+              //TODO: Check Mileage is greater than start mileage
+            ]"
+          />
+          <q-input
+            v-model="yearlyAllowance"
+            type="number"
+            filled
+            label="Yearly Allowance"
+            hint="Yearly Allowance"
+            lazy-rules
+            :rules="[
+              (val) => (val && val.length > 0) || 'Please type something',
+            ]"
+          />
+          <q-input
+            v-model="pricePerExcess"
+            type="number"
+            filled
+            label="Pence Per Excess Mile/KM"
+            hint="Pence Per Excess Mile/KM"
             lazy-rules
             :rules="[
               (val) => (val && val.length > 0) || 'Please type something',
             ]"
           />
 
-          <q-input
-            filled
-            type="number"
-            label="Your age *"
-            lazy-rules
-            :rules="[
-              (val) => (val !== null && val !== '') || 'Please type your age',
-              (val) => (val > 0 && val < 100) || 'Please type a real age',
-            ]"
-          />
-
-          <!-- <q-toggle label="Miles/KMs" /> -->
-
           <div>
-            <q-btn label="Submit" type="submit" color="green-10" />
+            <q-btn
+              prevent
+              label="Submit"
+              type="submit"
+              color="green-10"
+              @click="addVehicleToArray"
+            />
             <q-btn
               label="Reset"
               type="reset"
@@ -53,6 +185,7 @@
         <q-markup-table>
           <thead>
             <tr>
+              <th class="text-left">Customer</th>
               <th class="text-left">Vehicle Registration</th>
               <th class="text-left">Vehicle Type</th>
               <th class="text-left">Hire Start Date</th>
@@ -65,8 +198,11 @@
               <th class="text-left">Excess Mielage Charge</th>
             </tr>
           </thead>
-          <tbody v-for="(vehicle, i) in vehicleArray" :key="i">
+          <tbody v-for="vehicle in vehicleArray" :key="vehicle.id">
             <tr>
+              <td>
+                {{ vehicle.customer }}
+              </td>
               <td>
                 {{ vehicle.reg }}
               </td>
@@ -97,7 +233,12 @@
               <td>
                 {{ vehicle.excessCharge }}
               </td>
-              <td @click="remove(vehicle.reg, i)">Remove</td>
+              <td
+                @click="removeVehicleFromArray(vehicle.id)"
+                class="cursor-pointer"
+              >
+                Remove
+              </td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -108,8 +249,11 @@
 
 <script>
 import { ref } from "vue";
+import { date } from "quasar";
+
 export default {
   setup() {
+    const customer = ref("");
     const registration = ref("");
     const vehicleType = ref("");
     const hireStart = ref("");
@@ -118,10 +262,12 @@ export default {
     const endMileage = ref("");
     const yearlyAllowance = ref("");
     const excessMileage = ref("");
-    const pricePerExcess = ref("");
+    const pricePerExcess = ref("7");
     const excessCharge = ref("");
-    const vehicleArray = [
+    const vehicleArray = ref([
       {
+        id: 1,
+        customer: "DFDS",
         reg: "DX12AEA",
         type: "Tractor Unit",
         startDate: "01/01/2022",
@@ -134,6 +280,8 @@ export default {
         excessCharge: "70",
       },
       {
+        id: 2,
+        customer: "Yusen",
         reg: "DX12AEB",
         type: "Tractor Unit 6x2",
         startDate: "03/01/2022",
@@ -145,13 +293,48 @@ export default {
         ppm: "0.08",
         excessCharge: "88",
       },
-    ];
+    ]);
 
-    function remove(reg, index) {
-      console.log(`Clicked ${index}: ${reg}`);
+    const vehicleArrayID = vehicleArray.value.length + 1;
+
+    function addVehicleToArray() {
+      vehicleArray.value.push({
+        id: vehicleArrayID,
+        customer: customer.value,
+        reg: registration.value,
+        type: vehicleType.value,
+        startDate: hireStart.value,
+        endDate: hireEnd.value,
+        startMileage: startMileage.value,
+        endMileage: endMileage.value,
+        allowance: yearlyAllowance.value,
+        over: "coming soon",
+        ppm: pricePerExcess.value,
+        excessCharge: "coming soon",
+      });
+      vehicleArrayID++;
     }
 
-    return { vehicleArray, remove };
+    function removeVehicleFromArray(id) {
+      vehicleArray.value.splice(id, 1);
+    }
+
+    return {
+      vehicleArray,
+      addVehicleToArray,
+      removeVehicleFromArray,
+      customer,
+      registration,
+      vehicleType,
+      hireStart,
+      hireEnd,
+      startMileage,
+      endMileage,
+      yearlyAllowance,
+      excessMileage,
+      pricePerExcess,
+      excessCharge,
+    };
   },
 };
 </script>
