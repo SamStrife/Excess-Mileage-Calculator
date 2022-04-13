@@ -298,12 +298,25 @@ export default {
     const yearlyAllowance = ref("");
     const excessMileage = ref("");
     const pricePerExcess = ref("7");
-    const excessCharge = ref("");
     const vehicleArray = ref([]);
 
     let vehicleArrayID = vehicleArray.value.length + 1;
 
+    function excessCalc() {
+      let dailyAllowance = yearlyAllowance.value / 365;
+      let daysOnRent = date.getDateDiff(hireEnd.value, hireStart.value, "days");
+      let milesDone = endMileage.value - startMileage.value;
+      let hireAllowance = dailyAllowance * daysOnRent;
+      let mileageDifference = milesDone - hireAllowance;
+      return {
+        difference: mileageDifference,
+        cost: mileageDifference * pricePerExcess.value,
+      };
+    }
+
     function addVehicleToArray() {
+      let calculation = excessCalc();
+
       vehicleArray.value.push({
         id: vehicleArrayID,
         customer: customer.value,
@@ -314,9 +327,9 @@ export default {
         startMileage: startMileage.value,
         endMileage: endMileage.value,
         allowance: yearlyAllowance.value,
-        over: "coming soon",
+        over: calculation.difference,
         ppm: pricePerExcess.value,
-        excessCharge: "coming soon",
+        excessCharge: calculation.cost,
       });
       vehicleArrayID++;
     }
@@ -338,7 +351,6 @@ export default {
       yearlyAllowance.value = "";
       excessMileage.value = "";
       pricePerExcess.value = "7";
-      excessCharge.value = "";
     }
 
     return {
@@ -356,7 +368,6 @@ export default {
       yearlyAllowance,
       excessMileage,
       pricePerExcess,
-      excessCharge,
     };
   },
 };
