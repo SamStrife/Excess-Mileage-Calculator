@@ -13,165 +13,190 @@
 
     <q-page-container>
       <div class="q-pa-md">
-        <q-form class="q-gutter-md row items-start">
-          <q-input
-            v-model="customer"
-            dense
-            filled
-            label="Customer"
-            hint="Customer Name"
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
-          />
-          <q-input
-            v-model="registration"
-            filled
-            dense
-            label="Registration"
-            hint="Vehicle Registration"
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
-          />
-          <q-input
-            v-model="vehicleType"
-            filled
-            dense
-            label="Vehicle Type"
-            hint="Vehicle Type"
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
-          />
-          <q-input
-            v-model="hireStart"
-            label="Hire Start Date"
-            hint="Hire Start Date"
-            filled
-            dense
-            mask="date"
-            :rules="['date']"
-          >
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  ref="qDateProxy"
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date
-                    v-model="hireStart"
-                    title="Hire Start Date"
-                    today-btn
-                    color="green-10"
-                  >
-                    <div class="row items-center justify-end">
-                      <q-btn
-                        v-close-popup
-                        label="Close"
+        <q-form class="q-gutter-md">
+          <div class="row q-gutter-md">
+            <div class="col">
+              <q-input
+                v-model="customer"
+                dense
+                outlined
+                label="Customer"
+                hint="Customer Name"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                ]"
+              />
+            </div>
+            <div class="col">
+              <q-input
+                v-model="registration"
+                outlined
+                dense
+                label="Registration"
+                hint="Vehicle Registration"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                ]"
+              />
+            </div>
+            <div class="col">
+              <q-input
+                v-model="vehicleType"
+                outlined
+                dense
+                label="Vehicle Type"
+                hint="Vehicle Type"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                ]"
+              />
+            </div>
+          </div>
+          <div class="row q-gutter-md">
+            <div class="col">
+              <q-input
+                v-model="hireStart"
+                label="Hire Start Date"
+                hint="Hire Start Date"
+                outlined
+                dense
+                mask="date"
+                :rules="['date']"
+              >
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      ref="qDateProxy"
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="hireStart"
+                        title="Hire Start Date"
+                        today-btn
                         color="green-10"
-                        flat
-                      />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <q-input
-            v-model="hireEnd"
-            label="Hire End Date"
-            hint="Hire End Date"
-            filled
-            dense
-            mask="date"
-            :rules="[
-              'date',
-              //TODO: Ensure end cannot be earlier that start
-            ]"
-          >
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  ref="qDateProxy"
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date
-                    v-model="hireEnd"
-                    title="Hire End Date"
-                    today-btn
-                    color="green-10"
-                  >
-                    <div class="row items-center justify-end">
-                      <q-btn
-                        v-close-popup
-                        label="Close"
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="green-10"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </div>
+            <div class="col">
+              <q-input
+                v-model="hireEnd"
+                label="Hire End Date"
+                hint="Hire End Date"
+                outlined
+                dense
+                mask="date"
+                :rules="[
+                  'date',
+                  //TODO: Ensure end cannot be earlier that start
+                ]"
+              >
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      ref="qDateProxy"
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="hireEnd"
+                        title="Hire End Date"
+                        today-btn
                         color="green-10"
-                        flat
-                      />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <q-input
-            v-model="startMileage"
-            type="number"
-            filled
-            dense
-            label="Start Mileage"
-            hint="Start Mileage"
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
-          />
-          <q-input
-            v-model="endMileage"
-            type="number"
-            filled
-            dense
-            label="End Mileage"
-            hint="End Mileage"
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-              //TODO: Check Mileage is greater than start mileage
-            ]"
-          />
-          <q-input
-            v-model="yearlyAllowance"
-            type="number"
-            filled
-            dense
-            label="Yearly Allowance"
-            hint="Yearly Allowance"
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
-          />
-          <q-input
-            v-model="pricePerExcess"
-            type="number"
-            filled
-            dense
-            label="Pence Per Excess Mile/KM"
-            hint="Pence Per Excess Mile/KM"
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
-          />
-
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="green-10"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </div>
+          </div>
+          <div class="row q-gutter-md">
+            <div class="col">
+              <q-input
+                v-model="startMileage"
+                type="number"
+                outlined
+                dense
+                label="Start Mileage"
+                hint="Start Mileage"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                ]"
+              />
+            </div>
+            <div class="col">
+              <q-input
+                v-model="endMileage"
+                type="number"
+                outlined
+                dense
+                label="End Mileage"
+                hint="End Mileage"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                  //TODO: Check Mileage is greater than start mileage
+                ]"
+              />
+            </div>
+          </div>
+          <div class="row q-gutter-md">
+            <div class="col">
+              <q-input
+                v-model="yearlyAllowance"
+                type="number"
+                outlined
+                dense
+                label="Yearly Allowance"
+                hint="Yearly Allowance"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                ]"
+              />
+            </div>
+            <div class="col">
+              <q-input
+                v-model="pricePerExcess"
+                type="number"
+                outlined
+                dense
+                label="Pence Per Excess Mile/KM"
+                hint="Pence Per Excess Mile/KM"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                ]"
+              />
+            </div>
+          </div>
           <div>
             <q-btn
               prevent
