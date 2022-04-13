@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-avatar>
-            <img src="src\assets\Hex Lease No Text 2.png" />
+            <img src="../assets/hexLogo.svg" />
           </q-avatar>
           Excess Mileage Calculator
         </q-toolbar-title>
@@ -65,7 +65,7 @@
               <th class="text-left">Excess Mielage Charge</th>
             </tr>
           </thead>
-          <tbody v-for="vehicle in vehicleArray" :key="vehicle.reg">
+          <tbody v-for="(vehicle, i) in vehicleArray" :key="i">
             <tr>
               <td>
                 {{ vehicle.reg }}
@@ -97,7 +97,7 @@
               <td>
                 {{ vehicle.excessCharge }}
               </td>
-              <td @click="remove(vehicle.reg)">Remove</td>
+              <td @click="remove(vehicle.reg, i)">Remove</td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -147,8 +147,8 @@ export default {
       },
     ];
 
-    function remove(reg) {
-      console.log(`Clicked: ${reg}`);
+    function remove(reg, index) {
+      console.log(`Clicked ${index}: ${reg}`);
     }
 
     return { vehicleArray, remove };
