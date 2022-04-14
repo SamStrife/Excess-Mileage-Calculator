@@ -208,7 +208,7 @@
                 label="Add"
                 type="submit"
                 color="green-10"
-                @submit="addVehicleToArray"
+                @click="addVehicleToArray"
               />
             </div>
             <div class="col">
@@ -280,7 +280,7 @@
               <td>
                 {{ vehicle.ppm }}
               </td>
-              <td>£{{ numberWithCommas(vehicle.excessCharge) }}</td>
+              <td>£{{ numberWithCommas(vehicle.excessCharge, true) }}</td>
               <td
                 @click="removeVehicleFromArray(vehicle)"
                 class="cursor-pointer"
@@ -334,8 +334,14 @@ export default {
     const pricePerExcess = ref("7");
     const vehicleArray = ref([]);
     const preventNegative = ref(false);
-
     let vehicleArrayID = vehicleArray.value.length + 1;
+
+    function numberWithCommas(number, currencyMode = false) {
+      let rounded = currencyMode
+        ? number.toFixed(2)
+        : Math.round(parseInt(number));
+      return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 
     function excessCalc(preventNeg) {
       let dailyAllowance = yearlyAllowance.value / 365;
@@ -349,10 +355,8 @@ export default {
         : (mileageDifference = mileageDifference);
 
       return {
-        difference: numberWithCommas(mileageDifference),
-        cost: numberWithCommas(
-          (mileageDifference * pricePerExcess.value) / 100
-        ),
+        difference: mileageDifference,
+        cost: (mileageDifference * pricePerExcess.value) / 100,
       };
     }
 
@@ -376,6 +380,16 @@ export default {
       vehicleArrayID++;
     }
 
+    function downloadTable() {
+      let table = document.getElementById("mileageTable");
+      let workbook = XLSX.utils.table_to_book(table);
+      let ws = workbook.Sheets["Sheet 1"];
+      XLSX.utils.sheet_add_aoa(ws, [["Created " + new Date().toISOString()]], {
+        origin: -1,
+      });
+      XLSX.writeFile(workbook, "Report.xlsx");
+    }
+
     function removeVehicleFromArray(arrayVehicle) {
       vehicleArray.value = vehicleArray.value.filter(
         (vehicle) => vehicle.id != arrayVehicle.id
@@ -397,20 +411,6 @@ export default {
 
     function clearTable() {
       vehicleArray.value = [];
-    }
-
-    function downloadTable() {
-      let table = document.getElementById("mileageTable");
-      let workbook = XLSX.utils.table_to_book(table);
-      let ws = workbook.Sheets["Sheet 1"];
-      XLSX.utils.sheet_add_aoa(ws, [["Created " + new Date().toISOString()]], {
-        origin: -1,
-      });
-      XLSX.writeFile(workbook, "Report.xlsx");
-    }
-
-    function numberWithCommas(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     return {
