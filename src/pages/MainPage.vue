@@ -206,7 +206,6 @@
               <q-btn
                 prevent
                 label="Add"
-                type="submit"
                 color="green-10"
                 @click="addVehicleToArray"
               />
@@ -352,7 +351,7 @@ export default {
 
       preventNeg && mileageDifference < 0
         ? (mileageDifference = 0)
-        : (mileageDifference = mileageDifference);
+        : mileageDifference;
 
       return {
         difference: mileageDifference,
