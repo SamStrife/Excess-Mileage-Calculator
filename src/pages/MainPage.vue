@@ -287,7 +287,7 @@
           <div>
             <q-chip
               clickable
-              @click="downloadTable"
+              @click="downloadTable2"
               icon="file_download"
               color="green-10"
               text-color="white"
@@ -384,6 +384,48 @@ export default {
       XLSX.writeFile(workbook, "Report.xlsx");
     }
 
+    function downloadTable2() {
+      const workbook = XLSX.utils.book_new();
+      let ws = XLSX.utils.json_to_sheet(vehicleArray.value, {
+        header: [
+          "id",
+          "customer",
+          "reg",
+          "type",
+          "startDate",
+          "endDate",
+          "startMileage",
+          "endMileage",
+          "allowance",
+          "over",
+          "ppm",
+          "excessCharge",
+        ],
+      });
+      XLSX.utils.sheet_add_aoa(
+        ws,
+        [
+          [
+            "ID",
+            "Customer",
+            "Registration",
+            "Vehicle Type",
+            "Hire Start Date",
+            "Hire End Date",
+            "Starting Mileage",
+            "End Mileage",
+            "Yearly Allowance",
+            "Over",
+            "Pence Per KM",
+            "Excess Mileage Charge",
+          ],
+        ],
+        { origin: "A1" }
+      );
+      XLSX.utils.book_append_sheet(workbook, ws, "Sheet 1");
+      XLSX.writeFileXLSX(workbook, "Report.xlsx");
+    }
+
     function removeVehicleFromArray(arrayVehicle) {
       vehicleArray.value = vehicleArray.value.filter(
         (vehicle) => vehicle.id != arrayVehicle.id
@@ -414,6 +456,7 @@ export default {
       clearInput,
       clearTable,
       downloadTable,
+      downloadTable2,
       numberWithCommas,
       customer,
       registration,
