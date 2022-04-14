@@ -13,7 +13,7 @@
 
     <q-page-container>
       <div class="q-pa-md">
-        <q-form class="q-gutter-md">
+        <q-form class="q-gutter-md" greedy>
           <div class="row q-gutter-md">
             <div class="col">
               <q-input
@@ -63,8 +63,10 @@
                 hint="Hire Start Date"
                 outlined
                 dense
-                mask="date"
-                :rules="['date']"
+                mask="##/##/####"
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
+                ]"
               >
                 <template v-slot:append>
                   <q-icon name="event" class="cursor-pointer">
@@ -77,6 +79,8 @@
                       <q-date
                         v-model="hireStart"
                         title="Hire Start Date"
+                        mask="DD/MM/YYYY"
+                        subtitle=" "
                         today-btn
                         color="green-10"
                       >
@@ -101,10 +105,9 @@
                 hint="Hire End Date"
                 outlined
                 dense
-                mask="date"
+                mask="##/##/####"
                 :rules="[
-                  'date',
-                  //TODO: Ensure end cannot be earlier that start
+                  (val) => (val && val.length > 0) || 'Please type something',
                 ]"
               >
                 <template v-slot:append>
@@ -118,6 +121,8 @@
                       <q-date
                         v-model="hireEnd"
                         title="Hire End Date"
+                        mask="DD/MM/YYYY"
+                        subtitle=" "
                         today-btn
                         color="green-10"
                       >
@@ -204,7 +209,7 @@
                 label="Add"
                 type="submit"
                 color="green-10"
-                @click="addVehicleToArray"
+                @submit="addVehicleToArray"
               />
             </div>
             <div class="col">
@@ -240,7 +245,7 @@
               <th class="text-left">End Mileage</th>
               <th class="text-left">Yearly Allowance</th>
               <th class="text-left">Over</th>
-              <th class="text-left">Pence per Mile Over</th>
+              <th class="text-left">Pence per KM</th>
               <th class="text-left">Excess Mielage Charge</th>
             </tr>
           </thead>
@@ -262,28 +267,26 @@
                 {{ vehicle.endDate }}
               </td>
               <td>
-                {{ vehicle.startMileage }}
+                {{ numberWithCommas(vehicle.startMileage) }}
               </td>
               <td>
-                {{ vehicle.endMileage }}
+                {{ numberWithCommas(vehicle.endMileage) }}
               </td>
               <td>
-                {{ vehicle.allowance }}
+                {{ numberWithCommas(vehicle.allowance) }}
               </td>
               <td>
-                {{ vehicle.over }}
+                {{ numberWithCommas(vehicle.over) }}
               </td>
               <td>
                 {{ vehicle.ppm }}
               </td>
-              <td>
-                {{ vehicle.excessCharge }}
-              </td>
+              <td>£{{ numberWithCommas(vehicle.excessCharge) }}</td>
               <td
                 @click="removeVehicleFromArray(vehicle)"
                 class="cursor-pointer"
               >
-                <q-icon name="delete_forever"></q-icon>
+                <q-icon name="clear"></q-icon>
               </td>
             </tr>
           </tbody>
@@ -347,8 +350,10 @@ export default {
         : (mileageDifference = mileageDifference);
 
       return {
-        difference: mileageDifference,
-        cost: mileageDifference * pricePerExcess.value,
+        difference: numberWithCommas(mileageDifference),
+        cost: numberWithCommas(
+          (mileageDifference * pricePerExcess.value) / 100
+        ),
       };
     }
 
@@ -403,7 +408,10 @@ export default {
         origin: -1,
       });
       XLSX.writeFile(workbook, "Report.xlsx");
-      console.log("Downloading");
+    }
+
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     return {
@@ -413,6 +421,7 @@ export default {
       clearInput,
       clearTable,
       downloadTable,
+      numberWithCommas,
       customer,
       registration,
       vehicleType,
