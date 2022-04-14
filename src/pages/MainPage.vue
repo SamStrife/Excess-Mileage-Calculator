@@ -248,7 +248,7 @@
             </tr>
           </thead>
           <tbody v-for="vehicle in vehicleArray" :key="vehicle.id">
-            <tr @click="removeVehicleFromArray(vehicle)" class="cursor-pointer">
+            <tr>
               <td>
                 {{ vehicle.customer }}
               </td>
@@ -265,21 +265,28 @@
                 {{ vehicle.endDate }}
               </td>
               <td>
-                {{ numberWithCommas(vehicle.startMileage) }}
+                {{ vehicle.startMileage }}
               </td>
               <td>
-                {{ numberWithCommas(vehicle.endMileage) }}
+                {{ vehicle.endMileage }}
               </td>
               <td>
-                {{ numberWithCommas(vehicle.allowance) }}
+                {{ vehicle.allowance }}
               </td>
               <td>
-                {{ numberWithCommas(vehicle.over) }}
+                {{ vehicle.over }}
               </td>
               <td>
                 {{ vehicle.ppm }}
               </td>
-              <td>£{{ numberWithCommas(vehicle.excessCharge, true) }}</td>
+              <td>{{ vehicle.excessCharge }}</td>
+              <td>
+                <q-icon
+                  class="text-red cursor-pointer"
+                  name="clear"
+                  @click="removeVehicleFromArray(vehicle)"
+                />
+              </td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -363,25 +370,59 @@ export default {
         type: vehicleType.value,
         startDate: hireStart.value,
         endDate: hireEnd.value,
-        startMileage: startMileage.value,
-        endMileage: endMileage.value,
-        allowance: yearlyAllowance.value,
-        over: calculation.difference,
+        startMileage: numberWithCommas(startMileage.value),
+        endMileage: numberWithCommas(endMileage.value),
+        allowance: numberWithCommas(yearlyAllowance.value),
+        over: numberWithCommas(calculation.difference),
         ppm: pricePerExcess.value,
-        excessCharge: calculation.cost,
+        excessCharge: "£" + numberWithCommas(calculation.cost, true),
       });
       vehicleArrayID++;
     }
 
     function downloadTable() {
-      let table = document.getElementById("mileageTable");
-      let workbook = XLSX.utils.table_to_book(table);
-      let ws = workbook.Sheets["Sheet 1"];
-      XLSX.utils.sheet_add_aoa(ws, [["Created " + new Date().toISOString()]], {
-        origin: -1,
+      const workbook = XLSX.utils.book_new();
+      let obj = vehicleArray.value.map((x) => {
+        let y = JSON.parse(JSON.stringify(x));
+        delete y.id;
+        return y;
       });
-      XLSX.utils.sheet_add_aoa(ws, [["null"]], { origin: "L2" });
-      XLSX.writeFile(workbook, "Report.xlsx");
+      let ws = XLSX.utils.json_to_sheet(obj, {
+        header: [
+          "customer",
+          "reg",
+          "type",
+          "startDate",
+          "endDate",
+          "startMileage",
+          "endMileage",
+          "allowance",
+          "over",
+          "ppm",
+          "excessCharge",
+        ],
+      });
+      XLSX.utils.sheet_add_aoa(
+        ws,
+        [
+          [
+            "Customer",
+            "Registration",
+            "Vehicle Type",
+            "Hire Start Date",
+            "Hire End Date",
+            "Starting Mileage",
+            "End Mileage",
+            "Yearly Allowance",
+            "Over",
+            "Pence Per KM",
+            "Excess Mileage Charge",
+          ],
+        ],
+        { origin: "A1" }
+      );
+      XLSX.utils.book_append_sheet(workbook, ws, "Sheet 1");
+      XLSX.writeFileXLSX(workbook, "Report.xlsx");
     }
 
     function removeVehicleFromArray(arrayVehicle) {
