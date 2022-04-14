@@ -248,7 +248,7 @@
             </tr>
           </thead>
           <tbody v-for="vehicle in vehicleArray" :key="vehicle.id">
-            <tr>
+            <tr @click="removeVehicleFromArray(vehicle)" class="cursor-pointer">
               <td>
                 {{ vehicle.customer }}
               </td>
@@ -280,12 +280,6 @@
                 {{ vehicle.ppm }}
               </td>
               <td>£{{ numberWithCommas(vehicle.excessCharge, true) }}</td>
-              <td
-                @click="removeVehicleFromArray(vehicle)"
-                class="cursor-pointer"
-              >
-                <q-icon name="clear"></q-icon>
-              </td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -293,7 +287,7 @@
           <div>
             <q-chip
               clickable
-              @click="downloadTable2"
+              @click="downloadTable"
               icon="file_download"
               color="green-10"
               text-color="white"
@@ -386,45 +380,8 @@ export default {
       XLSX.utils.sheet_add_aoa(ws, [["Created " + new Date().toISOString()]], {
         origin: -1,
       });
+      XLSX.utils.sheet_add_aoa(ws, [["null"]], { origin: "L2" });
       XLSX.writeFile(workbook, "Report.xlsx");
-    }
-
-    function downloadTable2() {
-      const workbook = XLSX.utils.book_new();
-      let ws = XLSX.utils.json_to_sheet(vehicleArray.value, {
-        header: [
-          "customer",
-          "reg",
-          "type",
-          "startDate",
-          "endDate",
-          "startMileage",
-          "endMileage",
-          "allowance",
-          "over",
-          "ppm",
-          "excessCharge",
-        ],
-      });
-      XLSX.utils.sheet_add_aoa(
-        ws,
-        [
-          ["Customer"],
-          ["Registration"],
-          ["Vehicle Type"],
-          ["Hire Start Date"],
-          ["Hire End Date"],
-          ["Starting Mileage"],
-          ["End Mileage"],
-          ["Yearly Allowance"],
-          ["Over"],
-          ["Pence Per KM"],
-          ["Excess Mileage Charge"],
-        ],
-        { origin: ["A1", "A2"] }
-      );
-      XLSX.utils.book_append_sheet(workbook, ws, "Sheet 1");
-      XLSX.writeFileXLSX(workbook, "Report.xlsx");
     }
 
     function removeVehicleFromArray(arrayVehicle) {
@@ -457,7 +414,6 @@ export default {
       clearInput,
       clearTable,
       downloadTable,
-      downloadTable2,
       numberWithCommas,
       customer,
       registration,
