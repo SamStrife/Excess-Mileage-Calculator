@@ -139,6 +139,7 @@
           <div class="row q-gutter-md">
             <div class="col">
               <q-input
+                id="startMileageInput"
                 v-model="startMileage"
                 type="number"
                 outlined
@@ -162,7 +163,6 @@
                 lazy-rules
                 :rules="[
                   (val) => (val && val.length > 0) || 'Please type something',
-                  //TODO: Check Mileage is greater than start mileage
                 ]"
               />
             </div>
@@ -197,27 +197,38 @@
               />
             </div>
           </div>
-          <div>
-            <q-btn
-              prevent
-              label="Add"
-              type="submit"
-              color="green-10"
-              @click="addVehicleToArray"
-            />
-            <q-btn
-              label="Clear"
-              type="reset"
-              color="green-10"
-              flat
-              class="q-ml-sm"
-              @click="clearInput"
-            />
+          <div class="row justify-start">
+            <div class="col-1 col-md-1">
+              <q-btn
+                prevent
+                label="Add"
+                type="submit"
+                color="green-10"
+                @click="addVehicleToArray"
+              />
+            </div>
+            <div class="col">
+              <q-btn
+                label="Clear"
+                type="reset"
+                color="green-10"
+                flat
+                class="q-ml-sm"
+                @click="clearInput"
+              />
+            </div>
+            <div class="col">
+              <q-toggle
+                v-model="preventNegative"
+                color="green"
+                label="Prevent Negative Results"
+              />
+            </div>
           </div>
         </q-form>
       </div>
       <div class="q-pa-md">
-        <q-markup-table>
+        <q-markup-table id="mileageTable">
           <thead>
             <tr>
               <th class="text-left">Customer</th>
@@ -272,11 +283,31 @@
                 @click="removeVehicleFromArray(vehicle)"
                 class="cursor-pointer"
               >
-                Remove
+                <q-icon name="delete_forever"></q-icon>
               </td>
             </tr>
           </tbody>
         </q-markup-table>
+        <div class="q-pa-md q-gutter-md">
+          <div>
+            <q-chip
+              clickable
+              @click="downloadTable"
+              icon="file_download"
+              color="green-10"
+              text-color="white"
+              >Download</q-chip
+            >
+            <q-chip
+              clickable
+              @click="clearTable"
+              icon="delete_forever"
+              color="green-10"
+              text-color="white"
+              >Clear Table</q-chip
+            >
+          </div>
+        </div>
       </div>
     </q-page-container>
   </q-layout>
@@ -285,6 +316,7 @@
 <script>
 import { ref } from "vue";
 import { date } from "quasar";
+import * as XLSX from "xlsx";
 
 export default {
   setup() {
@@ -299,15 +331,21 @@ export default {
     const excessMileage = ref("");
     const pricePerExcess = ref("7");
     const vehicleArray = ref([]);
+    const preventNegative = ref(false);
 
     let vehicleArrayID = vehicleArray.value.length + 1;
 
-    function excessCalc() {
+    function excessCalc(preventNeg) {
       let dailyAllowance = yearlyAllowance.value / 365;
       let daysOnRent = date.getDateDiff(hireEnd.value, hireStart.value, "days");
       let milesDone = endMileage.value - startMileage.value;
       let hireAllowance = dailyAllowance * daysOnRent;
       let mileageDifference = milesDone - hireAllowance;
+
+      preventNeg && mileageDifference < 0
+        ? (mileageDifference = 0)
+        : (mileageDifference = mileageDifference);
+
       return {
         difference: mileageDifference,
         cost: mileageDifference * pricePerExcess.value,
@@ -315,7 +353,7 @@ export default {
     }
 
     function addVehicleToArray() {
-      let calculation = excessCalc();
+      let calculation = excessCalc(preventNegative.value);
 
       vehicleArray.value.push({
         id: vehicleArrayID,
@@ -353,11 +391,28 @@ export default {
       pricePerExcess.value = "7";
     }
 
+    function clearTable() {
+      vehicleArray.value = [];
+    }
+
+    function downloadTable() {
+      let table = document.getElementById("mileageTable");
+      let workbook = XLSX.utils.table_to_book(table);
+      let ws = workbook.Sheets["Sheet 1"];
+      XLSX.utils.sheet_add_aoa(ws, [["Created " + new Date().toISOString()]], {
+        origin: -1,
+      });
+      XLSX.writeFile(workbook, "Report.xlsx");
+      console.log("Downloading");
+    }
+
     return {
       vehicleArray,
       addVehicleToArray,
       removeVehicleFromArray,
       clearInput,
+      clearTable,
+      downloadTable,
       customer,
       registration,
       vehicleType,
@@ -368,6 +423,7 @@ export default {
       yearlyAllowance,
       excessMileage,
       pricePerExcess,
+      preventNegative,
     };
   },
 };
