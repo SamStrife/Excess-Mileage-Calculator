@@ -247,7 +247,7 @@
               <th class="text-left">Excess Mielage Charge</th>
             </tr>
           </thead>
-          <tbody v-for="vehicle in vehicleArray" :key="vehicle.id">
+          <tbody v-for="(vehicle, index) in vehicleArray" :key="index">
             <tr>
               <td>
                 {{ vehicle.customer }}
@@ -284,7 +284,7 @@
                 <q-icon
                   class="text-red cursor-pointer"
                   name="clear"
-                  @click="removeVehicleFromArray(vehicle)"
+                  @click="vehicleArray.splice(index,1)"
                 />
               </td>
             </tr>
@@ -343,14 +343,14 @@ export default {
       return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
-    function excessCalc(preventNeg) {
+    function calculateExcessPenalty() {
       let dailyAllowance = yearlyAllowance.value / 365;
       let daysOnRent = date.getDateDiff(hireEnd.value, hireStart.value, "days");
       let milesDone = endMileage.value - startMileage.value;
       let hireAllowance = dailyAllowance * daysOnRent;
       let mileageDifference = milesDone - hireAllowance;
 
-      preventNeg && mileageDifference < 0
+      preventNegative.value && mileageDifference < 0
         ? (mileageDifference = 0)
         : mileageDifference;
 
@@ -361,10 +361,9 @@ export default {
     }
 
     function addVehicleToArray() {
-      let calculation = excessCalc(preventNegative.value);
+      let calculation = calculateExcessPenalty(preventNegative.value);
 
       vehicleArray.value.push({
-        id: vehicleArrayID,
         customer: customer.value,
         reg: registration.value,
         type: vehicleType.value,
@@ -382,12 +381,7 @@ export default {
 
     function downloadTable() {
       const workbook = XLSX.utils.book_new();
-      let obj = vehicleArray.value.map((x) => {
-        let y = JSON.parse(JSON.stringify(x));
-        delete y.id;
-        return y;
-      });
-      let ws = XLSX.utils.json_to_sheet(obj, {
+      let ws = XLSX.utils.json_to_sheet(vehicleArray.value, {
         header: [
           "customer",
           "reg",
@@ -425,12 +419,6 @@ export default {
       XLSX.writeFileXLSX(workbook, "Report.xlsx");
     }
 
-    function removeVehicleFromArray(arrayVehicle) {
-      vehicleArray.value = vehicleArray.value.filter(
-        (vehicle) => vehicle.id != arrayVehicle.id
-      );
-    }
-
     function clearInput() {
       customer.value = "";
       registration.value = "";
@@ -451,7 +439,6 @@ export default {
     return {
       vehicleArray,
       addVehicleToArray,
-      removeVehicleFromArray,
       clearInput,
       clearTable,
       downloadTable,
