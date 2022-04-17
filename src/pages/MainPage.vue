@@ -116,7 +116,7 @@
                 type="number"
                 outlined
                 dense
-                reactive-rules
+                lazy-rules
                 label="End Mileage"
                 hint="End Mileage"
                 :rules="[
@@ -211,10 +211,10 @@
                 {{ vehicle.type }}
               </td>
               <td>
-                {{ vehicle.startDate.toLocaleString("en-GB") }}
+                {{ vehicle.startDate }}
               </td>
               <td>
-                {{ vehicle.endDate.toLocaleString("en-GB") }}
+                {{ vehicle.endDate }}
               </td>
               <td>
                 {{ vehicle.startMileage }}
@@ -332,8 +332,8 @@ export default {
         customer: customer.value,
         reg: registration.value,
         type: vehicleType.value,
-        startDate: hireStart.value,
-        endDate: hireEnd.value,
+        startDate: new Date(hireStart.value).toLocaleDateString(),
+        endDate: new Date(hireEnd.value).toLocaleDateString(),
         startMileage: numberWithCommas(startMileage.value),
         endMileage: numberWithCommas(endMileage.value),
         allowance: numberWithCommas(yearlyAllowance.value),
