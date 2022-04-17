@@ -84,6 +84,7 @@
                 reactive-rules
                 type="date"
                 :rules="[
+                  (val) => (val && val.length > 0) || 'Please type something',
                   () =>
                     endDateGreaterThanStartCheck == false ||
                     'End date must be after the start date',
@@ -195,7 +196,7 @@
               <th class="text-left">Yearly Allowance</th>
               <th class="text-left">Over</th>
               <th class="text-left">Pence per KM</th>
-              <th class="text-left">Excess Mielage Charge</th>
+              <th class="text-left">Excess Mileage Charge</th>
             </tr>
           </thead>
           <tbody v-for="(vehicle, index) in vehicleArray" :key="index">
