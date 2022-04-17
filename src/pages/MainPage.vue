@@ -12,7 +12,7 @@
     </q-header>
     <q-page-container>
       <div class="q-pa-md">
-        <q-form class="q-gutter-md" greedy>
+        <q-form class="q-gutter-md" greedy @submit.prevent="addVehicleToArray">
           <div class="row q-gutter-md">
             <div class="col">
               <q-input
@@ -62,39 +62,14 @@
                 hint="Hire Start Date"
                 outlined
                 dense
-                mask="##/##/####"
+                outline
+                stack-label
+                reactive-rules
+                type="date"
                 :rules="[
                   (val) => (val && val.length > 0) || 'Please type something',
                 ]"
               >
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy
-                      ref="qDateProxy"
-                      cover
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-date
-                        v-model="hireStart"
-                        title="Hire Start Date"
-                        mask="DD/MM/YYYY"
-                        subtitle=" "
-                        today-btn
-                        color="green-10"
-                      >
-                        <div class="row items-center justify-end">
-                          <q-btn
-                            v-close-popup
-                            label="Close"
-                            color="green-10"
-                            flat
-                          />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
               </q-input>
             </div>
             <div class="col">
@@ -104,39 +79,16 @@
                 hint="Hire End Date"
                 outlined
                 dense
-                mask="##/##/####"
+                outline
+                stack-label
+                reactive-rules
+                type="date"
                 :rules="[
-                  (val) => (val && val.length > 0) || 'Please type something',
+                  () =>
+                    endDateGreaterThanStartCheck == false ||
+                    'End date must be after the start date',
                 ]"
               >
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy
-                      ref="qDateProxy"
-                      cover
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-date
-                        v-model="hireEnd"
-                        title="Hire End Date"
-                        mask="DD/MM/YYYY"
-                        subtitle=" "
-                        today-btn
-                        color="green-10"
-                      >
-                        <div class="row items-center justify-end">
-                          <q-btn
-                            v-close-popup
-                            label="Close"
-                            color="green-10"
-                            flat
-                          />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
               </q-input>
             </div>
           </div>
@@ -144,7 +96,7 @@
             <div class="col">
               <q-input
                 id="startMileageInput"
-                v-model="startMileage"
+                v-model.number="startMileage"
                 type="number"
                 outlined
                 dense
@@ -152,21 +104,26 @@
                 hint="Start Mileage"
                 lazy-rules
                 :rules="[
-                  (val) => (val && val.length > 0) || 'Please type something',
+                  (val) =>
+                    Number.isInteger(val) || 'Please enter a whole number',
                 ]"
               />
             </div>
             <div class="col">
               <q-input
-                v-model="endMileage"
+                v-model.number="endMileage"
                 type="number"
                 outlined
                 dense
+                reactive-rules
                 label="End Mileage"
                 hint="End Mileage"
-                lazy-rules
                 :rules="[
-                  (val) => (val && val.length > 0) || 'Please type something',
+                  (val) =>
+                    Number.isInteger(val) || 'Please enter a whole number',
+                  () =>
+                    endMileageGreaterThanStartCheck ||
+                    'End mileage has to be greater than start mileage',
                 ]"
               />
             </div>
@@ -180,7 +137,6 @@
                 dense
                 label="Yearly Allowance"
                 hint="Yearly Allowance"
-                lazy-rules
                 :rules="[
                   (val) => (val && val.length > 0) || 'Please type something',
                 ]"
@@ -203,12 +159,7 @@
           </div>
           <div class="row justify-start">
             <div class="col-1 col-md-1">
-              <q-btn
-                prevent
-                label="Add"
-                color="green-10"
-                @click="addVehicleToArray"
-              />
+              <q-btn type="submit" label="Add" color="green-10" />
             </div>
             <div class="col">
               <q-btn
@@ -259,10 +210,10 @@
                 {{ vehicle.type }}
               </td>
               <td>
-                {{ vehicle.startDate }}
+                {{ vehicle.startDate.toLocaleString("en-GB") }}
               </td>
               <td>
-                {{ vehicle.endDate }}
+                {{ vehicle.endDate.toLocaleString("en-GB") }}
               </td>
               <td>
                 {{ vehicle.startMileage }}
@@ -284,7 +235,7 @@
                 <q-icon
                   class="text-red cursor-pointer"
                   name="clear"
-                  @click="vehicleArray.splice(index,1)"
+                  @click="vehicleArray.splice(index, 1)"
                 />
               </td>
             </tr>
@@ -316,7 +267,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { date } from "quasar";
 import * as XLSX from "xlsx";
 
@@ -334,7 +285,6 @@ export default {
     const pricePerExcess = ref("7");
     const vehicleArray = ref([]);
     const preventNegative = ref(false);
-    let vehicleArrayID = vehicleArray.value.length + 1;
 
     function numberWithCommas(number, currencyMode = false) {
       let rounded = currencyMode
@@ -343,12 +293,26 @@ export default {
       return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
+    const endMileageGreaterThanStartCheck = computed(() => {
+      return endMileage.value > startMileage.value;
+    });
+
+    const endDateGreaterThanStartCheck = computed(() => {
+      if (hireStart.value && hireEnd.value)
+        return date.getDateDiff(hireEnd.value, hireStart.value, "days") <= 0;
+      return false;
+    });
+
     function calculateExcessPenalty() {
-      let dailyAllowance = yearlyAllowance.value / 365;
-      let daysOnRent = date.getDateDiff(hireEnd.value, hireStart.value, "days");
-      let milesDone = endMileage.value - startMileage.value;
-      let hireAllowance = dailyAllowance * daysOnRent;
-      let mileageDifference = milesDone - hireAllowance;
+      const dailyAllowance = yearlyAllowance.value / 365;
+      const daysOnRent = date.getDateDiff(
+        hireEnd.value,
+        hireStart.value,
+        "days"
+      );
+      const milesDone = endMileage.value - startMileage.value;
+      const hireAllowance = dailyAllowance * daysOnRent;
+      const mileageDifference = milesDone - hireAllowance;
 
       preventNegative.value && mileageDifference < 0
         ? (mileageDifference = 0)
@@ -376,7 +340,6 @@ export default {
         ppm: pricePerExcess.value,
         excessCharge: "£" + numberWithCommas(calculation.cost, true),
       });
-      vehicleArrayID++;
     }
 
     function downloadTable() {
@@ -443,6 +406,8 @@ export default {
       clearTable,
       downloadTable,
       numberWithCommas,
+      endMileageGreaterThanStartCheck,
+      endDateGreaterThanStartCheck,
       customer,
       registration,
       vehicleType,
