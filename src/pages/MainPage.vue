@@ -139,7 +139,8 @@
                 label="Yearly Allowance"
                 hint="Yearly Allowance"
                 :rules="[
-                  (val) => (val && val.length > 0) || 'Please type something',
+                  (val) =>
+                    Number.isInteger(val) || 'Please enter a whole number',
                 ]"
               />
             </div>
