@@ -154,7 +154,8 @@
                 hint="Pence Per Excess Mile/KM"
                 lazy-rules
                 :rules="[
-                  (val) => (val && val.length > 0) || 'Please type something',
+                  (val) =>
+                    Number.isInteger(val) || 'Please enter a whole number',
                 ]"
               />
             </div>
@@ -284,7 +285,7 @@ export default {
     const endMileage = ref("");
     const yearlyAllowance = ref("");
     const excessMileage = ref("");
-    const pricePerExcess = ref("7");
+    const pricePerExcess = ref(8);
     const vehicleArray = ref([]);
     const preventNegative = ref(false);
 
