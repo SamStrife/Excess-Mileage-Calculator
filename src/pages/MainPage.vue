@@ -132,7 +132,7 @@
           <div class="row q-gutter-md">
             <div class="col">
               <q-input
-                v-model="yearlyAllowance"
+                v-model.number="yearlyAllowance"
                 type="number"
                 outlined
                 dense
@@ -146,7 +146,7 @@
             </div>
             <div class="col">
               <q-input
-                v-model="pricePerExcess"
+                v-model.number="pricePerExcess"
                 type="number"
                 outlined
                 dense
