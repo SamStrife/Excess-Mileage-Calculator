@@ -314,7 +314,7 @@ export default {
       );
       const milesDone = endMileage.value - startMileage.value;
       const hireAllowance = dailyAllowance * daysOnRent;
-      const mileageDifference = milesDone - hireAllowance;
+      let mileageDifference = milesDone - hireAllowance;
 
       preventNegative.value && mileageDifference < 0
         ? (mileageDifference = 0)
